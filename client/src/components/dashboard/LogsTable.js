@@ -21,6 +21,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import SearchBar from "material-ui-search-bar";
 import axios from 'axios';
+import API_BASE_URL from "../../config/api"; // Add this import
 
 /**
  * Comparator function for descending sort
@@ -220,11 +221,10 @@ export default function LogsTable(props) {
 
     try {
       // Check if exam code is valid and it is one of professor's exams
-      const examResponse = await axios.get(`/api/exams/examsByProf?exam_code=${exam_code}&prof_email=${props.prof_email}`);
+      const examResponse = await axios.get(`${API_BASE_URL}/api/exams/examsByProf?exam_code=${exam_code}&prof_email=${props.prof_email}`); // Updated
       console.log(examResponse);
       
-      // Get the logs data
-      const response = await axios.post('/api/logs/allData', { exam_code: exam_code });
+      const response = await axios.post(`${API_BASE_URL}/api/logs/allData`, { exam_code: exam_code }); // Updated
     
       // Clear any previous errors
       setErrorText("");
