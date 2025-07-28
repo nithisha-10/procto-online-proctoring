@@ -19,7 +19,6 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import SearchBar from "material-ui-search-bar";
 import axios from 'axios';
 import API_BASE_URL from "../../config/api"; // Add this import
 
