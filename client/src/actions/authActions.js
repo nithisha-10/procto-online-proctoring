@@ -1,6 +1,6 @@
 import axios from "axios";
 import setAuthToken from "../utils/setAuthToken";
-import jwt_decode from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 import {
   GET_ERRORS,
   SET_CURRENT_USER,
@@ -12,17 +12,17 @@ import {
  * if any
  * 
  * @param {Object} userData 
- * @param {useHistory} history 
+ * @param {Function} navigate // Updated comment
  * 
  */
-export const registerUser = (userData, history) => dispatch => {
+export const registerUser = (userData, navigate) => dispatch => {
   axios
     .post("/api/users/register", userData)
-    .then(res => history.push("/login")) // re-direct to login on successful register
+    .then(res => navigate("/login")) // Changed from history.push to navigate
     .catch(err =>
       dispatch({
         type: GET_ERRORS,
-        payload: err.response.data
+        payload: err.response ? err.response.data : { message: "Network error or server unavailable" }
       })
     );
 };
@@ -38,22 +38,20 @@ export const loginUser = userData => dispatch => {
   axios
     .post("/api/users/login", userData)
     .then(res => {
-      
-
       const { token } = res.data;
       // Set token to localStorage
       localStorage.setItem("jwtToken", token);
       // Set token to Auth header
       setAuthToken(token);
       // Decode token to get user data
-      const decoded = jwt_decode(token);
+      const decoded = jwtDecode(token);
       // Set current user
       dispatch(setCurrentUser(decoded));
     })
     .catch(err =>
       dispatch({
         type: GET_ERRORS,
-        payload: err.response.data
+        payload: err.response ? err.response.data : { message: "Network error or server unavailable" }
       })
     );
 };

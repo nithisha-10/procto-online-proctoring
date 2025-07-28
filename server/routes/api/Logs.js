@@ -2,20 +2,30 @@ const express = require("express");
 const router = express.Router();
 
 const Logs = require("../../models/Logs");
+
 /**
  * post requests on /logs/update is made by the exam window every second
  * if there exists no entry in the database corresponding to the given pair of exam_code and student_email
  * it creates a new one, else it replaces the old one  
  */
-router.post("/update", (req, res) =>{
-
-    Logs.findOneAndUpdate({exam_code: req.body.exam_code, student_email:req.body.student_email}, req.body, {upsert: true}, function(err, doc) {
-        if (err){
-            return res.status(400).json("Error Occoured");
+router.post("/update", async (req, res) => {
+    try {
+        // Validate required fields
+        if (!req.body.exam_code || !req.body.student_email) {
+            return res.status(400).json("Missing required fields: exam_code and student_email");
         }
-        return res.status(200).json("Success");
-    });
 
+        const result = await Logs.findOneAndUpdate(
+            {exam_code: req.body.exam_code, student_email: req.body.student_email}, 
+            req.body, 
+            {upsert: true, new: true}
+        );
+        
+        return res.status(200).json("Success");
+    } catch (err) {
+        console.error('Error in /logs/update:', err);
+        return res.status(500).json("Internal Server Error");
+    }
 });
 
 /**
@@ -39,13 +49,13 @@ router.get("/logByEmail", (req, res) => {
 /**
  * post request to get all student data for the given exam code
  */
-router.post("/allData", (req,res) => {
-    Logs.find({ exam_code: req.body.exam_code}, function (err, docs) {
-        
-        if(err){
-            return res.status(400).json("Error Occoured");
-        }
+router.post("/allData", async (req,res) => {
+    try {
+        const docs = await Logs.find({ exam_code: req.body.exam_code });
         return res.status(200).json(docs);
-    });
+    } catch (err) {
+        console.error('Error in /allData:', err);
+        return res.status(500).json("Error Occurred");
+    }
 });
 module.exports = router;

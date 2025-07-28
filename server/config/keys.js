@@ -1,4 +1,4 @@
 module.exports = {
-    mongoURI: "mongodb+srv://admin:addiction@cluster0.rcsbb.mongodb.net/online-exam-proctoring?retryWrites=true&w=majority",
+    mongoURI: "mongodb+srv://lakshana0827:Mp1Iai4h8VSbKdZf@codeworkcluster.6l73lmz.mongodb.net/online-exam-proctoring?retryWrites=true&w=majority&appName=CodeworkCluster",
     secretOrKey: "secret",
   };

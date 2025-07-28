@@ -18,8 +18,16 @@ export default function Navbar() {
           }}
           className="col s5 brand-logo center black-text"
         >
-          <i className="material-icons">computer</i>
-          PROCTO
+          <img 
+            src="/codework.png" 
+            alt="Codework Logo" 
+            style={{
+              height: "60px",
+              verticalAlign: "middle",
+              marginRight: "8px",
+              marginTop: "10px"
+            }}
+          />
         </Link>
       </div>
     </nav>

@@ -3,16 +3,19 @@ import PropTypes from "prop-types";
 import TextField from '@mui/material/TextField';
 import { connect } from "react-redux";
 import { logoutUser } from "../../actions/authActions";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import axios from "axios"; // Add this import
+import moment from "moment"; // Also fix moment import
 
 function StudentDashboard(props) {
 
     const [exam_code, setExamCode] = useState("");
     const [error, setError] = useState("");
 
-    const axios = require("axios");
-    const moment = require("moment");
-    const history = useHistory();
+    // Remove these lines:
+    // const axios = require("axios");
+    // const moment = require("moment");
+    const navigate = useNavigate();
 
     /**
      * This function is called when student enters exam code to start the exam
@@ -51,10 +54,7 @@ function StudentDashboard(props) {
                     mins_left: diff_mins,
                     secs_left: diff_secs,
                 };
-                history.push({ 
-                    pathname: '/test',
-                    state: data
-                })
+                navigate('/test', { state: data });
                  
             }
 

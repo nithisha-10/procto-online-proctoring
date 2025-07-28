@@ -1,10 +1,10 @@
 import React, { Component } from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"; // Changed: Switch → Routes
 import "./App.css"
 import { Provider } from "react-redux";
 import store from "./store";
 
-import jwt_decode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import setAuthToken from "./utils/setAuthToken";
 import { setCurrentUser, logoutUser } from "./actions/authActions";
 
@@ -18,46 +18,36 @@ import TestPage from "./components/exam_page/TestPage";
 
 // Check for token to keep user logged in
 if (localStorage.jwtToken) {
-  // Set auth token header auth
   const token = localStorage.jwtToken;
   setAuthToken(token);
-  // Decode token and get user info and exp
-  const decoded = jwt_decode(token);
-  // Set user and isAuthenticated
+  const decoded = jwtDecode(token);
   store.dispatch(setCurrentUser(decoded));
-// Check for expired token
-  const currentTime = Date.now() / 1000; // to get in milliseconds
+  const currentTime = Date.now() / 1000;
   if (decoded.exp < currentTime) {
-    // Logout user
     store.dispatch(logoutUser());
-    // Redirect to login
     window.location.href = "./login";
   }
 }
 
-/**
- * Main component of the website which has a navbar on top of all pages
- * and a router which displays the correct component based on URL
- */
 class App extends Component {
   render() {
     return (
       <Provider store={store}>
         <Router>
-          <div className="App" >
+          <div className="App">
             <Navbar />
-            
-            <Route exact path="/" component={Landing} />
-            <Route exact path="/register" component={Register} />
-            <Route exact path="/login" component={Login} />
-            <Switch>
-              <PrivateRoute exact path="/dashboard" component={Dashboard} />
-              <Route exact path="/test" component={TestPage} />
-            </Switch>
+            <Routes> {/* Changed: Switch → Routes */}
+              <Route path="/" element={<Landing />} /> {/* Changed: component → element */}
+              <Route path="/register" element={<Register />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+              <Route path="/test" element={<PrivateRoute><TestPage /></PrivateRoute>} />
+            </Routes>
           </div>
         </Router>
       </Provider>
     );
   }
 }
+
 export default App;

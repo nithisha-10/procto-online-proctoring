@@ -1,4 +1,4 @@
-import React, { Component, useState } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -7,13 +7,14 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import AdapterDateFns from '@mui/lab/AdapterDateFns';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
-import DateTimePicker from '@mui/lab/DateTimePicker';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import swal from 'sweetalert';
 import { logoutUser } from "../../actions/authActions";
 import LogsTable from "./LogsTable.js"
 import { connect } from "react-redux";
+import axios from "axios";
 
 function ProfDashboard(props) {
   const [examDialogOpen, setExamDialogOpen] = useState(false);
@@ -24,7 +25,6 @@ function ProfDashboard(props) {
   const [exam_code, setExamCode] = useState("");
   const [errorText, setErrorText] = useState("");
   const [exam_code_search, setExamCodeSearch] = useState("");
-  const axios = require("axios");
 
   /**
    * This function opens the exam dialog

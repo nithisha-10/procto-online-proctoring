@@ -4,17 +4,20 @@ import Detection from './Object_Detection';
 import { Button } from '@mui/material';
 import swal from 'sweetalert';
 import "./ExamPage.css";
-import { Redirect, useHistory } from "react-router-dom";
+import { Navigate, useNavigate, useLocation } from "react-router-dom";
 import axios from 'axios';
 
 export default function TestPage(props){
 
-  const [student_name, setStudentName] = useState(props.location.state.student_name);
-  const [student_email, setStudentEmail] = useState(props.location.state.student_email);
-  const [exam_id, setExamId] = useState(props.location.state.exam_code);
-  const [form_link, setFormLink] = useState(props.location.state.exam_link);
-  const [minutes, setMinutes] = useState(parseInt(props.location.state.mins_left));
-  const [seconds, setSeconds] = useState(parseInt(props.location.state.secs_left));
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  const [student_name, setStudentName] = useState(location.state?.student_name || '');
+  const [student_email, setStudentEmail] = useState(location.state?.student_email || '');
+  const [exam_id, setExamId] = useState(location.state?.exam_code || '');
+  const [form_link, setFormLink] = useState(location.state?.exam_link || '');
+  const [minutes, setMinutes] = useState(parseInt(location.state?.mins_left || 0));
+  const [seconds, setSeconds] = useState(parseInt(location.state?.secs_left || 0));
   const [tab_change, setTabChange] = useState(0);
   const [key_press, setKeyPress] = useState(0);
   const [full_screen_exit, setFullScreenExit] = useState(0);
@@ -23,8 +26,7 @@ export default function TestPage(props){
   const [face_not_visible, setFaceNotVisible] = useState(false);
   const [multiple_faces_visible, setMultipleFacesVisible] = useState(false);
   const [checkedPrevLogs, setCheckedPrevLogs] = useState(false);
-  
-  const history = useHistory();
+  const [shouldRedirect, setShouldRedirect] = useState(false);
 
   /**
    * The below 4 functions are helper functions to set state
@@ -172,7 +174,7 @@ export default function TestPage(props){
         }
 
       if (seconds <= 0 && minutes <= 0) {
-          <Redirect to='/thankyou'/>
+          setShouldRedirect(true);
         }
       sendLogsToServer();
   
@@ -189,9 +191,23 @@ export default function TestPage(props){
    * the dashboard after showing a confirmation message
    */
   function handleSubmit(){
+      // Stop camera before exiting
+      if (window.stream) {
+        window.stream.getTracks().forEach(track => {
+          track.stop();
+        });
+        window.stream = null;
+      }
+      
       swal("Thank You for taking the exam. Logs have been shared with your professor");
-      history.push('/dashboard');
+      navigate('/dashboard');
   }
+
+  // Handle redirect when time is up
+  if (shouldRedirect) {
+    return <Navigate to='/thankyou' replace />;
+  }
+
   return (
       <div style={{ height: "100%"}} className="my_container" id="my_container">
     

@@ -20,8 +20,7 @@ import Tooltip from '@mui/material/Tooltip';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import SearchBar from "material-ui-search-bar";
-
-const axios = require('axios')
+import axios from 'axios';
 
 /**
  * Comparator function for descending sort
@@ -119,7 +118,7 @@ function EnhancedTableHead(props) {
 }
 
 EnhancedTableHead.propTypes = {
-  classes: PropTypes.object.isRequired,
+  // Remove this line: classes: PropTypes.object.isRequired,
   numSelected: PropTypes.number.isRequired,
   onRequestSort: PropTypes.func.isRequired,
   onSelectAllClick: PropTypes.func.isRequired,
@@ -209,54 +208,60 @@ export default function LogsTable(props) {
    * and updates the table
    * 
    */
-  const getData=async ()=>{
+  const getData = async () => {
+    // Validate exam code before making API calls
+    if (!exam_code.trim()) {
+      setErrorText("Please enter an exam code");
+      setVisibility(false);
+      setTableData([]);
+      setRows([]);
+      return;
+    }
+
     try {
-      // check if exam code is valid and it is one of professor's exams
-      axios.get('/api/exams/examsByProf?exam_code='+exam_code+'&prof_email='+props.prof_email)
-      .then(function (response) {
-          console.log(response);
-          // exam code valid, and permission is there so let it pass through
-      })
-      .catch(function (err) {
-          console.log(err);
-          // either exam code invalid or its not this professor's exam
-          setErrorText("Either exam code is invalid or you dont have permission");
-          // clear table and make it invisible.
-          setVisibility(false);
-          setTableData([]);
-          setRows([]);
-          return;
-      });
-      const response = await axios.post('/api/logs/allData',{exam_code:exam_code});
+      // Check if exam code is valid and it is one of professor's exams
+      const examResponse = await axios.get(`/api/exams/examsByProf?exam_code=${exam_code}&prof_email=${props.prof_email}`);
+      console.log(examResponse);
+      
+      // Get the logs data
+      const response = await axios.post('/api/logs/allData', { exam_code: exam_code });
     
+      // Clear any previous errors
       setErrorText("");
       setVisibility(true);
       
-      var curr_logs=[];
-      // loop over the response and store it in the state
-      for(var i=0;i<response.data.length;i++){
-      
-        var obj=new Object();
-        obj.s_no=i+1;
-        obj.student_name = response.data[i].student_name;
-        obj.student_email = response.data[i].student_email;
-        obj.tab_change_count = response.data[i].tab_change_count;
-        obj.key_press_count = response.data[i].key_press_count;
-        obj.face_not_visible = response.data[i].face_not_visible;
-        obj.multiple_faces_found = response.data[i].multiple_faces_found;
-        obj.mobile_found = response.data[i].mobile_found;
-        obj.prohibited_object_found = response.data[i].prohibited_object_found;
-        curr_logs=[...curr_logs,obj]
-        
+      const curr_logs = [];
+      // Loop over the response and store it in the state
+      for (let i = 0; i < response.data.length; i++) {
+        const obj = {
+          s_no: i + 1,
+          student_name: response.data[i].student_name,
+          student_email: response.data[i].student_email,
+          tab_change_count: response.data[i].tab_change_count,
+          key_press_count: response.data[i].key_press_count,
+          face_not_visible: response.data[i].face_not_visible,
+          multiple_faces_found: response.data[i].multiple_faces_found,
+          mobile_found: response.data[i].mobile_found,
+          prohibited_object_found: response.data[i].prohibited_object_found
+        };
+        curr_logs.push(obj);
       }
+      
       setTableData(curr_logs);
       setRows(curr_logs);
+    } catch (err) {
+      console.error(err.message);
+      if (err.response && err.response.status === 400) {
+        setErrorText("Either exam code is invalid or you don't have permission");
+      } else {
+        setErrorText("An error occurred while fetching data");
+      }
+      // Clear table and make it invisible
+      setVisibility(false);
+      setTableData([]);
+      setRows([]);
     }
-    catch(err){
-      console.error(err.message)
-    }
-  }
-
+  };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -286,27 +291,25 @@ export default function LogsTable(props) {
    * Filters rows based on the search string present in name or email of the student
    * @param {String} searchVal 
    */
-  const requestSearch=(searchVal)=>{
-  
-    const filteredRows=TableData.filter((row)=>{
-      // for each row of data check if name or email contains the search string
-      if(row.student_name.toLowerCase().includes(searchVal.toLowerCase()) || row.student_email.toLowerCase().includes(searchVal.toLowerCase())) {
-        
-        return true;
-      }
-      else return false;
-    })
-    setRows(filteredRows);
+  const requestSearch = (searchVal) => {
+    setSearched(searchVal);
     
-
-  }
+    const filteredRows = TableData.filter((row) => {
+      // for each row of data check if name or email contains the search string
+      return row.student_name.toLowerCase().includes(searchVal.toLowerCase()) || 
+             row.student_email.toLowerCase().includes(searchVal.toLowerCase());
+    });
+    
+    setRows(filteredRows);
+  };
+  
   /**
    * Cancels the search and sets the whole table to original position
    */
-  const cancelSearch=()=>{
+  const cancelSearch = () => {
     setSearched("");
-    requestSearch(searched);
-  }
+    setRows(TableData); // Reset to original data instead of calling requestSearch
+  };
   const isSelected = (company) => selected.indexOf(company) !== -1;
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
   const formatValue = (value) => value.toFixed(0);
@@ -348,12 +351,15 @@ export default function LogsTable(props) {
 
     {visibility === true && (<Paper sx={{ width: '100%', mb: 2 }}>
       
-      <SearchBar
-      value={searched}
-      onChange={(searchVal) => requestSearch(searchVal)}
-      onCancelSearch={() => cancelSearch()}
-      style={{border:'3px solid rgba(0, 0, 0, 0.05)'}}
-    />
+      <TextField
+        value={searched}
+        onChange={(e) => requestSearch(e.target.value)}
+        placeholder="Search by name or email..."
+        variant="outlined"
+        fullWidth
+        margin="normal"
+      />
+
         <EnhancedTableToolbar numSelected={selected.length} />
         <TableContainer >
           <Table

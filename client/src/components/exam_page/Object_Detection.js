@@ -183,4 +183,18 @@ export default class Detection extends React.Component {
       </div>
     );
   }
+
+  /**
+   * ComponentWillUnmount runs when the component is about to be destroyed
+   * Stop all camera tracks to release the camera
+   */
+  componentWillUnmount() {
+    // Stop all tracks of the camera stream
+    if (window.stream) {
+      window.stream.getTracks().forEach(track => {
+        track.stop();
+      });
+      window.stream = null;
+    }
+  }
 }

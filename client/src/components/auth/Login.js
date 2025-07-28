@@ -1,10 +1,9 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { loginUser } from "../../actions/authActions";
 import classnames from "classnames";
-
 
 class Login extends Component {
   constructor() {
@@ -19,24 +18,23 @@ class Login extends Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.auth.isAuthenticated) {
       // If the user is already logged in, send him to dashboard
-      this.props.history.push("/dashboard");
+      this.props.navigate("/dashboard");
     }
     // set errors if present
     if (nextProps.errors) {
-
       this.setState({
         errors: nextProps.errors
       });
     }
   }
+  
   componentDidMount() {
-
     // If logged in and user navigates to Login page, should redirect them to dashboard
     if (this.props.auth.isAuthenticated) {
-      this.props.history.push("/dashboard");
+      this.props.navigate("/dashboard");
     }
-
   }
+  
   /**
    * Combined on change function for all components.
    * The input event is used to get id which is the same as state name
@@ -64,13 +62,11 @@ class Login extends Component {
     //we don't need to pass in this.props.history as a parameter
   };
 
-
   render() {
       const { errors } = this.state;
   return (
       <div className="container">
-        <div style={{ marginTop: "4rem" }} className="row">
-          <div className="col s8 offset-s2">
+        <div style={{ marginTop: "4rem" }} className="row">          <div className="col s8 offset-s2">
             <Link to="/" className="btn-flat waves-effect">
               <i className="material-icons left">keyboard_backspace</i> Back to
               home
@@ -141,16 +137,25 @@ class Login extends Component {
     );
   }
 }
-Login.propTypes = {
+
+// Wrapper component to provide navigate function to class component
+function LoginWithNavigate(props) {
+  const navigate = useNavigate();
+  return <Login {...props} navigate={navigate} />;
+}
+
+LoginWithNavigate.propTypes = {
   loginUser: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired
 };
+
 const mapStateToProps = state => ({
   auth: state.auth,
   errors: state.errors
 });
+
 export default connect(
   mapStateToProps,
   { loginUser }
-)(Login);
+)(LoginWithNavigate);
