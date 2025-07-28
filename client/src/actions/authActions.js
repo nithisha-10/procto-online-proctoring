@@ -1,6 +1,7 @@
 import axios from "axios";
 import setAuthToken from "../utils/setAuthToken";
 import {jwtDecode} from "jwt-decode";
+import API_BASE_URL from "../config/api"; // Add this import
 import {
   GET_ERRORS,
   SET_CURRENT_USER,
@@ -17,8 +18,8 @@ import {
  */
 export const registerUser = (userData, navigate) => dispatch => {
   axios
-    .post("/api/users/register", userData)
-    .then(res => navigate("/login")) // Changed from history.push to navigate
+    .post(`${API_BASE_URL}/api/users/register`, userData) // Updated
+    .then(res => navigate("/login"))
     .catch(err =>
       dispatch({
         type: GET_ERRORS,
@@ -36,7 +37,7 @@ export const registerUser = (userData, navigate) => dispatch => {
  */
 export const loginUser = userData => dispatch => {
   axios
-    .post("/api/users/login", userData)
+    .post(`${API_BASE_URL}/api/users/login`, userData) // Updated
     .then(res => {
       const { token } = res.data;
       // Set token to localStorage

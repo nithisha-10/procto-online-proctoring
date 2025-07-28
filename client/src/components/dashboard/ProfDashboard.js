@@ -15,6 +15,7 @@ import { logoutUser } from "../../actions/authActions";
 import LogsTable from "./LogsTable.js"
 import { connect } from "react-redux";
 import axios from "axios";
+import API_BASE_URL from "../../config/api"; // Add this import
 
 function ProfDashboard(props) {
   const [examDialogOpen, setExamDialogOpen] = useState(false);
@@ -93,7 +94,7 @@ function ProfDashboard(props) {
         setErrorText("Please select a date and time of the future");
         return;
       }
-      axios.post('/api/exams/createExam', {
+      axios.post(`${API_BASE_URL}/api/exams/createExam`, { // Updated
           name: name,
           exam_link: exam_link,
           date_time_start: date_time_start,
@@ -102,12 +103,12 @@ function ProfDashboard(props) {
           prof_email: props.prof_email,
         })
         .then(function (response) {
-          console.log(response);
-          swal("Exam has been created. Your exam code has been copied to your clipboard, please share it with the students.");
+            console.log(response);
+            swal("Exam has been created. Your exam code has been copied to your clipboard, please share it with the students.");
         })
         .catch(function (error) {
-          console.log(error);
-          swal("Some error occoured in creating the exam");
+            console.log(error);
+            swal("Some error occoured in creating the exam");
         });
       
       closeExamDialog();

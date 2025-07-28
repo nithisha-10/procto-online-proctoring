@@ -4,8 +4,9 @@ import TextField from '@mui/material/TextField';
 import { connect } from "react-redux";
 import { logoutUser } from "../../actions/authActions";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"; // Add this import
-import moment from "moment"; // Also fix moment import
+import axios from "axios";
+import moment from "moment";
+import API_BASE_URL from "../../config/api"; // Add this import
 
 function StudentDashboard(props) {
 
@@ -26,7 +27,7 @@ function StudentDashboard(props) {
     function checkExamCode(){
 
         // send exam code to server
-        axios.get('/api/exams/examByCode?exam_code='+exam_code)
+        axios.get(`${API_BASE_URL}/api/exams/examByCode?exam_code=${exam_code}`) // Updated
         .then(function (response) {
             // if exam code is right
             console.log(response);

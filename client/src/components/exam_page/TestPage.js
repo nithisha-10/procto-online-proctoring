@@ -6,6 +6,7 @@ import swal from 'sweetalert';
 import "./ExamPage.css";
 import { Navigate, useNavigate, useLocation } from "react-router-dom";
 import axios from 'axios';
+import API_BASE_URL from "../../config/api"; // Add this import
 
 export default function TestPage(props){
 
@@ -50,46 +51,40 @@ export default function TestPage(props){
    * to update the database. This function is called every second.
    */
   function sendLogsToServer(){
-    axios.post('/api/logs/update',{
-          exam_code: exam_id,
-          student_name: student_name,
-          student_email: student_email,
-          key_press_count: key_press,
-          tab_change_count: tab_change,
-          mobile_found: mobile_phone_found,
-          face_not_visible: face_not_visible,
-          prohibited_object_found: prohibited_object_found,
-          multiple_faces_found: multiple_faces_visible,
-      })
-      .then(function (response){
-
-        console.log(response);
-      })
-      .catch(function (error){
-        console.log(error);
-      })
-      
-  }
-  /**
-   * This function is called when test page is opened for the first time
-   * It retrieves cheating data from the server if the student had given the exam
-   * before and closed the window in between
-   */
-  function getPreviousLogs(){
-      axios.get('/api/logs/logByEmail?exam_code='+exam_id+'&student_email='+student_email)
-      .then(function (response) {
+    axios.post(`${API_BASE_URL}/api/logs/update`,{ // Updated
+            exam_code: exam_id,
+            student_name: student_name,
+            student_email: student_email,
+            key_press_count: key_press,
+            tab_change_count: tab_change,
+            mobile_found: mobile_phone_found,
+            face_not_visible: face_not_visible,
+            prohibited_object_found: prohibited_object_found,
+            multiple_faces_found: multiple_faces_visible,
+        })
+        .then(function (response){
           console.log(response);
-          setKeyPress(parseInt(response.data.key_press_count));
-          setTabChange(parseInt(response.data.tab_change_count));
-          setMobilePhoneFound(response.data.mobile_found);
-          setMultipleFacesVisible(response.data.multiple_faces_found);
-          setProhibitedObjectFound(response.data.prohibited_object_found);
-          setFaceNotVisible(response.data.face_not_visible);
-      })
-      .catch(function (err) {
-          console.log(err);
-      });
-  }
+        })
+        .catch(function (error){
+          console.log(error);
+        })
+    }
+
+    function getPreviousLogs(){
+        axios.get(`${API_BASE_URL}/api/logs/logByEmail?exam_code=${exam_id}&student_email=${student_email}`) // Updated
+        .then(function (response) {
+            console.log(response);
+            setKeyPress(parseInt(response.data.key_press_count));
+            setTabChange(parseInt(response.data.tab_change_count));
+            setMobilePhoneFound(response.data.mobile_found);
+            setMultipleFacesVisible(response.data.multiple_faces_found);
+            setProhibitedObjectFound(response.data.prohibited_object_found);
+            setFaceNotVisible(response.data.face_not_visible);
+        })
+        .catch(function (err) {
+            console.log(err);
+        });
+    }
 
   /**
    * Function checks for tab change or minimising the window/ opening
